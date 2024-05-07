@@ -25,9 +25,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Don't use Redis when query
+        // $this->app->singleton(
+        //     \App\Repositories\Admin\User\UserRepositoryInterface::class,
+        //     \App\Repositories\Admin\User\UserRepository::class
+        // );
+
+        // Use Redis when query
         $this->app->singleton(
             \App\Repositories\Admin\User\UserRepositoryInterface::class,
-            \App\Repositories\Admin\User\UserRepository::class
+            \App\Repositories\Admin\User\UserCachedRepository::class
         );
         /**
          * add paginate function on Collect

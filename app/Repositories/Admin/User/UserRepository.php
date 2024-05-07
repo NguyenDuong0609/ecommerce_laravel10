@@ -102,6 +102,8 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function getInfoUser($id): mixed
     {
         $data = $this->find($id);
+        // Use Elastic search
+        // $data = User::search($id)->get();
         if(!$data) {
             throw new UserException(config('messages.USER.USER_NOT_FOUND'),"", Response::HTTP_NOT_FOUND);
         }
