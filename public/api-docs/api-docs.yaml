@@ -1,0 +1,406 @@
+openapi: 3.0.0
+info:
+  title: API Documentation
+  description: API Documentation For Ecommerce Laravel10
+  version: '1.0'
+servers:
+- url: http://localhost:8081
+  description: Local server
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+# security:
+# - BearerAuth: []
+tags:
+- name: "Admin - Users"
+  description: "API dành cho quản trị viên để quản lý người dùng"
+
+# - name: "Client - Profile"
+#   description: "API dành cho khách hàng để quản lý tài khoản cá nhân"
+paths:
+  /api/v1/admin/auth/login:
+    post:
+      tags:
+      - Admin - Users
+      summary: API dùng để login trang admin
+      operationId: login
+      description: A login endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@gmail.com
+                password:
+                  type: string
+                  example: 123456789
+      responses:
+        '200':
+          description: Successful Login
+          content:
+            application/json:
+              example:
+                user:
+                  id: 1
+                  name: Admin
+                  email: admin@gmail.com
+                  created_at: '2021-08-10T00:00:00'
+                  updated_at: '2021-08-10T00:00:00'
+                access_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hcGkvdmF1dGgiLCJpYXQiOjE2Mjg5NjYwNzIsImV4cCI6MTYyODk2OTY3MiwibmJmIjoxNjI4OTY2MDcyLCJqdGkiOiJkZjJk
+                token_type: bearer
+                expires_in: '3600'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+  /api/v1/admin/auth/signup:
+    post:
+      tags:
+      - Admin - Users
+      summary: API dùng để signup user ở admin
+      operationId: signup
+      description: A signup endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Agent
+                email:
+                  type: string
+                  example: agent@gmail.com
+                password:
+                  type: string
+                  example: 123456789
+                password_confirmation:
+                  type: string
+                  example: 123456789
+      responses:
+        '200':
+          description: Successful Login
+          content:
+            application/json:
+              example:
+                user:
+                  id: 2
+                  name: agent
+                  email: agent@gmail.com
+                  "email_verified_at": null
+                  created_at: '2021-08-10T00:00:00'
+                  updated_at: '2021-08-10T00:00:00'
+                access_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hcGkvdmF1dGgiLCJpYXQiOjE2Mjg5NjYwNzIsImV4cCI6MTYyODk2OTY3MiwibmJmIjoxNjI4OTY2MDcyLCJqdGkiOiJkZjJk
+                token_type: bearer
+                expires_in: '3600'
+        '422':
+          description: Email is exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: EMAIL IS EXISTS
+  /api/v1/admin/users/logout:
+    delete:
+      tags:
+      - Admin - Users
+      security:
+      - BearerAuth: []
+      summary: API dùng để logout user ở admin
+      operationId: logout
+      description: A logout endpoint
+      responses:
+        '200':
+          description: Successful Logout
+          content:
+            application/json:
+              example:
+                message: LOGOUT SUCCESS
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+  /api/v1/admin/users/me:
+    get:
+      tags:
+      - Admin - Users
+      security:
+      - BearerAuth: []
+      summary: API dùng để lấy thông tin user hiện tại ở admin
+      operationId: getMe
+      description: A get me user endpoint
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                user:
+                  id: 1
+                  name: Admin
+                  email: admin@gmail.com
+  /api/v1/admin/users:
+    get:
+      tags:
+      - Admin - Users
+      security:
+      - BearerAuth: []
+      summary: API dùng để lấy danh sách user ở admin
+      operationId: getUsers
+      description: A get list user endpoint
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                users:
+                - id: 1
+                  name: Admin
+                  email: admin@gmail.com
+                - id: 2
+                  name: Agent
+                  email: agent@gmail.com
+                pagination:
+                  total: 2
+                  count: 2
+                  per_page: 15
+                  current_page: 1
+                  total_pages: 1
+                  links: []
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+    post:
+      tags:
+      - Admin - Users
+      security:
+      - BearerAuth: []
+      summary: API dùng để tạo user ở admin
+      operationId: createUser
+      description: A create user endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Agent
+                email:
+                  type: string
+                  example: agent@gmail.com
+                password:
+                  type: string
+                  example: 123456789
+                password_confirmation:
+                  type: string
+                  example: 123456789
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                user:
+                  id: 2
+                  name: agent
+                  email:
+                  "email_verified_at": null
+                  created_at: '2021-08-10T00:00:00'
+                  updated_at: '2021-08-10T00:00:00'
+        '422':
+          description: Email is exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: EMAIL IS EXISTS
+  /api/v1/admin/users/{id}:
+    get:
+      tags:
+      - Admin - Users
+      security:
+      - BearerAuth: []
+      summary: API dùng để lấy thông tin user theo id ở admin
+      operationId: getUserById
+      description: A get user by id endpoint
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the user to get
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                user:
+                  id: 1
+                  name: Admin
+                  email: admin@gmail.com
+                  email_verified_at: null
+                  created_at: '2021-08-10T00:00:00'
+                  updated_at: '2021-08-10T00:00:00'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+    put:
+      tags:
+      - Admin - Users
+      security:
+      - BearerAuth: []
+      summary: API dùng để cập nhật user ở admin
+      operationId: updateUser
+      description: A update user endpoint
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the user to update
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Agent
+                email:
+                  type: string
+                  example: agent@gmail.com
+                password:
+                  type: string
+                  example: 123456789
+                password_confirmation:
+                  type: string
+                  example: 123456789
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                user:
+                  id: 2
+                  name: agent
+                  email:
+                  "email_verified_at": null
+                  created_at: '2021-08-10T00:00:00'
+                  updated_at: '2021-08-10T00:00:00'
+        '422':
+          description: Email is exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: EMAIL IS EXISTS
+    delete:
+      tags:
+      - Admin - Users
+      security:
+      - BearerAuth: []
+      summary: API dùng để xóa user ở admin
+      operationId: deleteUser
+      description: A delete user endpoint
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the user to delete
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                message: DELETE SUCCESS
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized

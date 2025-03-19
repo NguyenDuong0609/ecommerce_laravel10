@@ -14,6 +14,7 @@ use App\Http\Requests\SignUpUserRequest;
 use App\Http\Requests\LoginRequest;
 use App\Exceptions\Api\LoginException;
 use App\Exceptions\Api\UserException;
+use App\Http\Requests\UpdateUserRequest;
 use App\Transformers\AccessTokenTransformer;
 use App\Transformers\UserTransformer;
 
@@ -94,7 +95,7 @@ class UserController extends Controller
         }
     }
 
-    public function updateUser(UserRequest $request, $id)
+    public function updateUser(UpdateUserRequest $request, $id)
     {
         try {
             $this->userService->updateUser($request->all(), $id);
@@ -121,7 +122,7 @@ class UserController extends Controller
         try {
             $user = $this->userService->createUser($request);
             Log::info(config('messages.USER.CREATE_USER_SUCCESS'), ["user"=> $user['email']]);
-            return $this->reponse->withSucess(config('messages.USER.CREATE_USER_SUCCESS'));
+           return $this->reponse->withSucess(config('messages.USER.CREATE_USER_SUCCESS'));
         } catch (UserException $e) {
             return $e->getResponse();
         }
