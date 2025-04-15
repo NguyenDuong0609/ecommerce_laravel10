@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use Illuminate\Database\Eloquent\Model;
+
 interface RepositoryInterface
 {
     /**
@@ -35,18 +37,18 @@ interface RepositoryInterface
      * @param   [type] $id          [$id description]
      * @param   array  $attributes  [$attributes description]
      *
-     * @return  mixed               [return description]
+     * @return  Model|false               [return description]
      */
-    public function update($id, array $attributes): mixed;
+    public function updateById(int $id, array $attributes): Model|false;
 
     /**
      * [delete description]
      *
      * @param   [type]  $id  [$id description]
      *
-     * @return  mixed        [return description]
+     * @return  bool        [return description]
      */
-    public function delete($id): mixed;
+    public function delete(int $id): bool;
 
     /**
      * [findFirstByField description]

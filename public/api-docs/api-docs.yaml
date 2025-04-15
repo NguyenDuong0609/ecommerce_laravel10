@@ -404,3 +404,220 @@ paths:
                   message:
                     type: string
                     example: Unauthorized
+  /api/v1/admin/categories/parent:
+    get:
+      tags:
+      - Admin - Categories
+      security:
+      - BearerAuth: []
+      summary: API dùng để lấy danh sách categories cha ở admin
+      operationId: getParentCategories
+      description: A get list parent categories endpoint
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                catgories:
+                - id: 1
+                  name: Category 1
+                  parent_id: null
+                  slug: category-1
+                - id: 2
+                  name: Catgory 2
+                  parent_id: null
+                  slug: category-2
+  /api/v1/admin/categories:
+    get:
+      tags:
+      - Admin - Categories
+      security:
+      - BearerAuth: []
+      summary: API dùng để lấy danh sách categories ở admin
+      operationId: getCatgories
+      description: A get list categories endpoint
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                catgories:
+                - id: 1
+                  name: Category 1
+                  parent_id: null
+                  slug: category-1
+                - id: 2
+                  name: Catgory 2
+                  parent_id: null
+                  slug: category-2
+    post:
+      tags:
+      - Admin - Categories
+      security:
+      - BearerAuth: []
+      summary: API dùng để tạo categories ở admin
+      operationId: createCatgory
+      description: A create category endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Category 1
+                parent_id:
+                  type: integer
+                  example: 1
+                slug:
+                  type: string
+                  example: category-1
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                catgory:
+                  id: 1
+                  name: Category 1
+                  parent_id: null
+                  slug: category-1
+        '422':
+          description: Categories is exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Categories is exists
+  /api/v1/admin/categories/{id}:
+    get:
+      tags:
+      - Admin - Categories
+      security:
+      - BearerAuth: []
+      summary: API dùng để lấy thông tin category theo id ở admin
+      operationId: getCategoryById
+      description: A get category by id endpoint
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the category to get
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                catgory:
+                  id: 1
+                  name: Category 1
+                  parent_id: null
+                  slug: category-1
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+    put:
+      tags:
+      - Admin - Categories
+      security:
+      - BearerAuth: []
+      summary: API dùng để cập nhật category ở admin
+      operationId: updateCategory
+      description: A update category endpoint
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the category to update
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Category 1
+                parent_id:
+                  type: integer
+                  example: 1
+                slug:
+                  type: string
+                  example: category-1
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                catgory:
+                  id: 1
+                  name: Category 1
+                  parent_id: null
+                  slug: category-1
+        '422':
+          description: Categories is exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Categories is exists
+    delete:
+      tags:
+      - Admin - Categories
+      security:
+      - BearerAuth: []
+      summary: API dùng để xóa category ở admin
+      operationId: deleteCategory
+      description: A delete category endpoint
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the category to delete
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              example:
+                message: DELETE SUCCESS
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized

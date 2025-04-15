@@ -12,11 +12,10 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    protected $reponse;
+    protected $response;
 
-    public function __contruct() {
+    public function __construct() {
         $manager = new Manager();
-
-        $this->reponse = new \App\Support\Response(response(), new Transform($manager));
+        $this->response = new \App\Support\Response(response(), new Transform($manager));
     }
 }

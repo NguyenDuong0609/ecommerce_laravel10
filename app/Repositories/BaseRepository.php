@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Repositories\RepositoryInterface;
+use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseRepository implements RepositoryInterface
 {
@@ -81,35 +82,33 @@ abstract class BaseRepository implements RepositoryInterface
      * @param   [type] $id          [$id description]
      * @param   array  $attributes  [$attributes description]
      *
-     * @return  bool|mixed                [return description]
+     * @return Model|false
      */
-    public function update($id, array $attributes): mixed
+    public function updateById(int $id, array $attributes): Model|false
     {
-        $result = $this->find($id);
+        $model = $this->find($id);
 
-        if ($result) {
-            $result->update($attributes);
-            return $result;
+        if ($model) {
+            $model->update($attributes);
+            return $model;
         }
         return false;
     }
 
     /**
-     * [delete description]
-     *
-     * @param   [type]  $id  [$id description]
-     *
-     * @return  bool         [return description]
+        * Delete model by ID.
+        *
+        * @param int $id
+        * @return bool
      */
-    public function delete($id): bool
+    public function delete(int $id): bool
     {
-        $result = $this->find($id);
-        if ($result) {
-            $result->delete();
-            return true;
+        $model = $this->find($id);
+        if (!$model) {
+            return false;
         }
 
-        return false;
+        return (bool)$model->delete();
     }
 
     /**

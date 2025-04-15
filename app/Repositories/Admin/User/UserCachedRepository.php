@@ -26,9 +26,9 @@ class UserCachedRepository extends BaseRepository implements UserRepositoryInter
         return User::class;
     }
 
-    public function login($data): mixed
+    public function findByCredentials(array $credentials): ?User
     {
-        return $this->userRepository->login($data);
+        return $this->userRepository->findByCredentials($credentials);
     }
 
     /**
@@ -36,7 +36,7 @@ class UserCachedRepository extends BaseRepository implements UserRepositoryInter
      *
      * @return  mixed   [return description]
      */
-    public function getAllUser(): mixed
+    public function getAllUsers(): mixed
     {
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $expire = rand(2419200, 4838400);
@@ -109,7 +109,7 @@ class UserCachedRepository extends BaseRepository implements UserRepositoryInter
      * @param   [type]  $data  [$data description]
      *
      * @return  mixed          [return description]
-     */ 
+     */
     public function createUser($data): mixed
     {
         $expire = rand(2419200, 4838400);

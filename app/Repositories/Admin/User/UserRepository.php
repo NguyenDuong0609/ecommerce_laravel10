@@ -1,130 +1,169 @@
 <?php
 namespace App\Repositories\Admin\User;
 
-use Carbon\Carbon;
-use Validator;
-use Illuminate\Support\Facades\Auth;
-use App\Repositories\BaseRepository;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
-use App\Exceptions\Api\LoginException;
+use App\Repositories\BaseRepository;
 use App\Exceptions\Api\UserException;
 use App\Enums\Paginate;
 use App\Models\User;
 
+/**
+ * Class UserRepository
+ *
+ * Repository class handling user data persistence and retrieval operations.
+ * Implements the UserRepositoryInterface and extends BaseRepository.
+ *
+ * @package App\Repositories\Admin\User
+ *
+ * Authentication Methods:
+ * @method User findByCredentials(array $credentials) Find user by login credentials
+ *
+ * CRUD Operations:
+ * @method User createUser(array $data) Create new user
+ * @method LengthAwarePaginator getAllUsers() Get paginated list of users
+ * @method User getInfoUser(int|string $id) Get user by ID
+ * @method Model|false updateById(int $id, array $attributes) Update user by ID
+ * @method bool deleteById(int $id) Delete user by ID
+ *
+ * Inherited Methods:
+ * @method mixed getModel() Get the associated model class name
+ *
+ * Exceptions:
+ * @throws LoginException When authentication fails
+ * @throws UserException When user operations fail
+ *
+ * @see \App\Repositories\BaseRepository
+ * @see \App\Models\User
+ * @see \App\Repositories\Admin\User\UserRepositoryInterface
+ */
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
     /**
-     * [__contruct description]
-     *
-     * @return  [type]  [return description]
+     * Create a new UserRepository instance.
      */
     public function __construct() {
         parent::__construct();
     }
 
     /**
-     * [getModel description]
+     * Get the model class name for the repository.
      *
-     * @return  mixed    [return description]
+     * @return string The User model class name
      */
-    public function getModel(): mixed
+    public function getModel(): string
     {
         return User::class;
     }
 
     /**
-     * [login description]
+     * Find user by credentials and attempt authentication.
      *
-     * @return  mixed   [return description]
+     * @param  array $credentials Login credentials (email, password)
+     * @return User|null         Authenticated user or null
+     * @throws LoginException    When authentication fails
      */
-    public function login($data): mixed
+    public function findByCredentials(array $credentials): ?User
     {
-        $validator = Validator::make($data->all(), [
-            'email' => 'email|required|string',
-            'password' => 'required|string',
-            'remember_me' => 'boolean'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fails',
-                'message' => $validator->errors()->first(),
-                'errors' => $validator->errors()->toArray(),
-            ]);
+        if (!Auth::attempt($credentials)) {
+            return null;
         }
 
-        $credentials = request(['email', 'password']);
-
-        if(!Auth::attempt($credentials)) {
-           throw new LoginException(config('messages.LOGIN.WRONG_PASSWORD_OR_USERNAME'), "",Response::HTTP_UNAUTHORIZED);
-        }
-
-        $user = $data->user();
-        $tokenResult = $user->createToken('Personal Access Token');
-        $token = $tokenResult->token;
-
-        if ($data->remember_me) {
-            $token->expires_at = Carbon::now()->addWeeks(1);
-        }
-
-        return $authedUser = [
-            'user' => Auth::user(),
-            'token' => $tokenResult
-        ];
+        return Auth::user();
     }
 
-    public function createUser($data): mixed
+    /**
+     * Create a new user record in the database.
+     *
+     * @param  array $data User data (name, email, password)
+     * @return User       Created user instance
+     * @throws UserException When user creation fails
+     */
+    public function createUser(array $data): User
     {
         $user = $this->_model->create([
-            'name' => $data->name,
-            'email' => $data->email,
-            'password' => bcrypt($data->password)
+            'name'      => $data['name'],
+            'email'     => $data['email'],
+            'password'  => bcrypt($data['password'])
         ]);
+
         if(!$user) {
-            throw new UserException(config('messages.USER.CREATE_USER_FAIL'),"", Response::HTTP_BAD_GATEWAY);
+            throw new UserException(
+                config('messages.USER.CREATE_USER_FAIL'),
+                "",
+                Response::HTTP_BAD_GATEWAY);
         }
 
         return $user;
     }
 
-    public function getAllUser(): mixed
+    /**
+     * Get paginated list of all users.
+     *
+     * @return LengthAwarePaginator Paginated collection of users
+     * @throws UserException        When no users found
+     */
+    public function getAllUsers(): LengthAwarePaginator
     {
-        $perPage = $_GET['limit'] ?? Paginate::LIMIT_PAGINATE;
-        $data = $this->getAll()->paginate($perPage);
-        if(!$data) {
+        $perPage = request('limit', Paginate::LIMIT_PAGINATE);
+
+        $users = $this->getAll()->paginate($perPage);
+        if($users->isEmpty()) {
             throw new UserException(config('messages.USER.USER_NOT_FOUND'),"", Response::HTTP_NOT_FOUND);
         }
 
-        return $data;
+        return $users;
     }
 
-    public function getInfoUser($id): mixed
+    /**
+     * Get user information by ID.
+     *
+     * @param  int|string $id User ID
+     * @return User          User model instance
+     * @throws UserException When user not found
+     */
+    public function getInfoUser(int $id): User
     {
-        $data = $this->find($id);
+        $user = $this->find($id);
         // Use Elastic search
-        // $data = User::search($id)->get();
-        if(!$data) {
-            throw new UserException(config('messages.USER.USER_NOT_FOUND'),"", Response::HTTP_NOT_FOUND);
+        // $data = User::search($id)->get()->first();
+        if(!$user) {
+            throw new UserException(
+                config('messages.USER.USER_NOT_FOUND'),
+                "",
+                Response::HTTP_NOT_FOUND);
         }
-
-        return $data;
+        return $user;
     }
 
-    public function updateUser($data, $id): mixed
+    /**
+     * Update user by ID.
+     *
+     * @param  int   $id         User ID
+     * @param  array $attributes Updated user data
+     * @return Model|false      Updated user model or false on failure
+     * @throws UserException    When update fails
+     */
+    public function updateById(int $id, array $attributes): Model|false
     {
-        $data = $this->update($id, $data);
-        if(!$data) {
-            throw new UserException(config('messages.USER.USER_NOT_FOUND'),"", Response::HTTP_NOT_FOUND);
-        }
-
-        return true;
+        return parent::updateById($id, $attributes);
     }
 
-    public function deleteUser($id): mixed
+    /**
+     * Delete user by ID.
+     *
+     * @param  int   $id User ID
+     * @return bool     True if deletion successful
+     * @throws UserException When user not found or deletion fails
+     */
+    public function deleteById(int $id): bool
     {
-        $data = $this->delete($id);
-        if(!$data) {
+        $deleted = $this->delete($id);
+
+        if(!$deleted) {
             throw new UserException(config('messages.USER.USER_NOT_FOUND'),"", Response::HTTP_NOT_FOUND);
         }
 

@@ -222,7 +222,7 @@ class Response
         ]);
     }
 
-    public function withSucess($message)
+    public function withSuccess($message)
     {
         return $this->setStatusCode(HttpResponse::HTTP_OK)->json([
             'success' => true,

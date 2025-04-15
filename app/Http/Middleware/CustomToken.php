@@ -14,7 +14,7 @@ class CustomToken
 {
     /**
      * Handle an incoming request.
-     * 
+     *
      * If haven't bearerToken Request, get token in cookie
      * If haven't token in cookie, return error token mismatch
      *
